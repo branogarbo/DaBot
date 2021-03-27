@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -58,10 +59,13 @@ func main() {
 
 func handleEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
 	var (
-		msgHead       string
-		targetChannel string
-		err           error
-		vc            *discordgo.VoiceConnection
+		msgHead         string
+		targetChannel   string
+		targetChannelID string
+		channels        []*discordgo.Channel
+		err             error
+		errMsg          string
+		vc              *discordgo.VoiceConnection
 	)
 
 	if m.Author.ID == s.State.User.ID || len(m.Content) < 4 {
@@ -71,27 +75,28 @@ func handleEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
 	msgHead = m.Content[:4]
 
 	if msgHead == "!db " {
-		// if m.Content == msgHead {
-		// 	err = errors.New("mood not provided")
-		// } else {
-		// 	moodArg = strings.ToLower(strings.TrimSpace(m.Content[4:]))
+		if m.Content == msgHead {
+			err = errors.New("channel not provided")
+		} else {
+			targetChannel = strings.TrimSpace(m.Content[4:])
 
-		// }
+			channels, _ = s.GuildChannels(m.GuildID)
 
-		// if err != nil {
-		// 	errMsg = fmt.Sprintf("```Error: %v```", err)
+			for _, c := range channels {
+				if c.Type == discordgo.ChannelTypeGuildVoice && c.Name == targetChannel {
+					targetChannelID = c.ID
+					break
+				}
+			}
 
-		// 	fmt.Println(errMsg)
-		// 	moodString = errMsg
-		// }
+			vc, err = s.ChannelVoiceJoin(m.GuildID, targetChannelID, false, false)
+		}
 
-		// s.ChannelMessageSend(m.ChannelID, moodString)
-
-		targetChannel = strings.TrimSpace(m.Content[4:])
-
-		vc, err = s.ChannelVoiceJoin(m.GuildID, targetChannel, false, false)
 		if err != nil {
-			fmt.Println("failed to join voice channel:", err)
+			errMsg = fmt.Sprintf("```Error: %v```", err)
+
+			fmt.Println(errMsg)
+			s.ChannelMessageSend(m.ChannelID, errMsg)
 			return
 		}
 
