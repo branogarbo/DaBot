@@ -92,6 +92,6 @@ func handleEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		dgvoice.PlayAudioFile(vc, "./lesGooo.mp3", make(chan bool))
 
-		vc.Close()
+		vc.Disconnect()
 	}
 }
