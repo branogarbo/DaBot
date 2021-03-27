@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -49,50 +48,52 @@ func main() {
 
 func handleEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
 	var (
-		msgHead string
-		// targetChannel   string
+		msgHead         string
+		targetChannel   *discordgo.Channel
 		targetChannelID string
-		// channels        []*discordgo.Channel
-		err    error
-		errMsg string
-		vc     *discordgo.VoiceConnection
+		cmdString       string
+		err             error
+		errMsg          string
+		vc              *discordgo.VoiceConnection
 	)
 
-	if m.Author.ID == s.State.User.ID || len(m.Content) < 4 {
+	if m.Author.ID == s.State.User.ID || len(m.Content) < 3 {
 		return
 	}
 
-	msgHead = m.Content[:4]
+	cmdString = "!db"
+	msgHead = m.Content[:3]
 
-	if msgHead == "!db " {
-		if m.Content == msgHead || m.Content == msgHead[:3] {
-			err = errors.New("channel not provided")
+	if m.Content == cmdString {
+		errMsg = "```Error: no channel ID provided```"
+
+		fmt.Println(errMsg)
+		s.ChannelMessageSend(m.ChannelID, errMsg)
+		return
+	}
+
+	if msgHead == cmdString+" " {
+		targetChannelID = strings.TrimSpace(m.Content[4:])
+
+		targetChannel, err = s.Channel(targetChannelID)
+		if err != nil {
+			err = fmt.Errorf("channel with ID %v does not exist", targetChannelID)
+		} else if targetChannel.Type != discordgo.ChannelTypeGuildVoice {
+			err = fmt.Errorf("channel with ID %v is not a voice channel", targetChannelID)
 		} else {
-			// targetChannel = strings.TrimSpace(m.Content[4:])
-			targetChannelID = strings.TrimSpace(m.Content[4:])
-
-			// channels, _ = s.GuildChannels(m.GuildID)
-
-			// for _, c := range channels {
-			// 	if c.Type == discordgo.ChannelTypeGuildVoice && c.Name == targetChannel {
-			// 		targetChannelID = c.ID
-			// 		break
-			// 	}
-			// }
-
 			vc, err = s.ChannelVoiceJoin(m.GuildID, targetChannelID, false, false)
 		}
-
-		if err != nil {
-			errMsg = fmt.Sprintf("```Error: %v```", err)
-
-			fmt.Println(errMsg)
-			s.ChannelMessageSend(m.ChannelID, errMsg)
-			return
-		}
-
-		dgvoice.PlayAudioFile(vc, "./lesGooo.mp3", make(chan bool))
-
-		vc.Disconnect()
 	}
+
+	if err != nil {
+		errMsg = fmt.Sprintf("```Error: %v```", err)
+
+		fmt.Println(errMsg)
+		s.ChannelMessageSend(m.ChannelID, errMsg)
+		return
+	}
+
+	dgvoice.PlayAudioFile(vc, "./lesGooo.mp3", make(chan bool))
+
+	vc.Disconnect()
 }
