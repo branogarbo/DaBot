@@ -29,9 +29,8 @@ func main() {
 		return
 	}
 
-	dg.Identify.Intents = discordgo.IntentsGuildVoiceStates
+	dg.Identify.Intents = discordgo.IntentsGuilds
 
-	// dg.AddHandler(handleEvent)
 	dg.AddHandler(handleEvent)
 
 	err = dg.Open()
@@ -47,15 +46,6 @@ func main() {
 
 	dg.Close()
 }
-
-// func handleEvent(s *discordgo.Session, v *discordgo.VoiceConnection) {
-// 	// if v.UserID == s.State.User.ID {
-// 	// 	return
-// 	// }
-
-// 	fmt.Println(v.UserID)
-
-// }
 
 func handleEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
 	var (
