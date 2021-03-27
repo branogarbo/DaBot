@@ -29,7 +29,7 @@ func main() {
 		return
 	}
 
-	dg.Identify.Intents = discordgo.Intent(3147776)
+	dg.Identify.Intents = discordgo.IntentsAllWithoutPrivileged
 
 	dg.AddHandler(handleEvent)
 
@@ -90,7 +90,7 @@ func handleEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		dgvoice.PlayAudioFile(vc, "./lesGooo.mp3", make(chan bool))
+		dgvoice.PlayAudioFile(vc, "lesGooo.mp3", make(chan bool))
 
 		vc.Close()
 	}
