@@ -57,12 +57,13 @@ func handleEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
 		vc              *discordgo.VoiceConnection
 	)
 
-	if m.Author.ID == s.State.User.ID || len(m.Content) < 3 {
+	cmdString = "!db"
+
+	if m.Author.ID == s.State.User.ID || len(m.Content) < len(cmdString) {
 		return
 	}
 
-	cmdString = "!db"
-	msgHead = m.Content[:3]
+	msgHead = m.Content[:len(cmdString)]
 
 	if m.Content == cmdString {
 		errMsg = "```Error: no channel ID provided```"
@@ -73,7 +74,7 @@ func handleEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if msgHead == cmdString+" " {
-		targetChannelID = strings.TrimSpace(m.Content[4:])
+		targetChannelID = strings.TrimSpace(m.Content[len(cmdString)+1:])
 
 		targetChannel, err = s.Channel(targetChannelID)
 		if err != nil {
