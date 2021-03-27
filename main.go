@@ -49,13 +49,13 @@ func main() {
 
 func handleEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
 	var (
-		msgHead         string
-		targetChannel   string
+		msgHead string
+		// targetChannel   string
 		targetChannelID string
-		channels        []*discordgo.Channel
-		err             error
-		errMsg          string
-		vc              *discordgo.VoiceConnection
+		// channels        []*discordgo.Channel
+		err    error
+		errMsg string
+		vc     *discordgo.VoiceConnection
 	)
 
 	if m.Author.ID == s.State.User.ID || len(m.Content) < 4 {
@@ -68,16 +68,17 @@ func handleEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if m.Content == msgHead || m.Content == msgHead[:3] {
 			err = errors.New("channel not provided")
 		} else {
-			targetChannel = strings.TrimSpace(m.Content[4:])
+			// targetChannel = strings.TrimSpace(m.Content[4:])
+			targetChannelID = strings.TrimSpace(m.Content[4:])
 
-			channels, _ = s.GuildChannels(m.GuildID)
+			// channels, _ = s.GuildChannels(m.GuildID)
 
-			for _, c := range channels {
-				if c.Type == discordgo.ChannelTypeGuildVoice && c.Name == targetChannel {
-					targetChannelID = c.ID
-					break
-				}
-			}
+			// for _, c := range channels {
+			// 	if c.Type == discordgo.ChannelTypeGuildVoice && c.Name == targetChannel {
+			// 		targetChannelID = c.ID
+			// 		break
+			// 	}
+			// }
 
 			vc, err = s.ChannelVoiceJoin(m.GuildID, targetChannelID, false, false)
 		}
