@@ -58,9 +58,9 @@ func main() {
 
 func handleEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
 	var (
-		msgHead string
-		errMsg  string
-		err     error
+		msgHead       string
+		targetChannel string
+		err           error
 	)
 
 	if m.Author.ID == s.State.User.ID || len(m.Content) < 4 {
@@ -86,16 +86,16 @@ func handleEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		// s.ChannelMessageSend(m.ChannelID, moodString)
 
-		targetChannel := strings.TrimSpace(m.Content[4:])
+		targetChannel = strings.TrimSpace(m.Content[4:])
 
-		v, err := s.ChannelVoiceJoin(m.GuildID, targetChannel, false, false)
+		vc, err := s.ChannelVoiceJoin(m.GuildID, targetChannel, false, false)
 		if err != nil {
 			fmt.Println("failed to join voice channel:", err)
 			return
 		}
 
-		dgvoice.PlayAudioFile(v, "./lesGooo.mp3", make(chan bool))
+		dgvoice.PlayAudioFile(vc, "./lesGooo.mp3", make(chan bool))
 
-		v.Close()
+		vc.Close()
 	}
 }
