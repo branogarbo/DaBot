@@ -61,6 +61,7 @@ func handleEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
 		msgHead       string
 		targetChannel string
 		err           error
+		vc            *discordgo.VoiceConnection
 	)
 
 	if m.Author.ID == s.State.User.ID || len(m.Content) < 4 {
@@ -88,7 +89,7 @@ func handleEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		targetChannel = strings.TrimSpace(m.Content[4:])
 
-		vc, err := s.ChannelVoiceJoin(m.GuildID, targetChannel, false, false)
+		vc, err = s.ChannelVoiceJoin(m.GuildID, targetChannel, false, false)
 		if err != nil {
 			fmt.Println("failed to join voice channel:", err)
 			return
