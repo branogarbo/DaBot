@@ -66,10 +66,10 @@ func handleEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
 	msgHead = m.Content[:len(cmdString)]
 
 	if m.Content == cmdString {
-		errMsg = "```Error: no channel ID provided```"
+		errMsg = "Error: no channel ID provided"
 
 		fmt.Println(errMsg)
-		s.ChannelMessageSend(m.ChannelID, errMsg)
+		s.ChannelMessageSend(m.ChannelID, "```"+errMsg+"```")
 		return
 	}
 
@@ -87,10 +87,10 @@ func handleEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if err != nil {
-		errMsg = fmt.Sprintf("```Error: %v```", err)
+		errMsg = fmt.Sprintf("Error: %v", err)
 
 		fmt.Println(errMsg)
-		s.ChannelMessageSend(m.ChannelID, errMsg)
+		s.ChannelMessageSend(m.ChannelID, "```"+errMsg+"```")
 		return
 	}
 
