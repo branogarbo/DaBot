@@ -83,6 +83,10 @@ func handleEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
 			err = fmt.Errorf("channel with ID %v is not a voice channel", targetChannelID)
 		} else {
 			vc, err = s.ChannelVoiceJoin(m.GuildID, targetChannelID, false, false)
+
+			dgvoice.PlayAudioFile(vc, "./lesGooo.mp3", make(chan bool))
+
+			vc.Disconnect()
 		}
 	}
 
@@ -91,10 +95,5 @@ func handleEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		fmt.Println(errMsg)
 		s.ChannelMessageSend(m.ChannelID, "```"+errMsg+"```")
-		return
 	}
-
-	dgvoice.PlayAudioFile(vc, "./lesGooo.mp3", make(chan bool))
-
-	vc.Disconnect()
 }
