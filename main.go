@@ -29,7 +29,7 @@ func main() {
 		return
 	}
 
-	dg.Identify.Intents = discordgo.IntentsGuilds
+	dg.Identify.Intents = discordgo.Intent(3147776)
 
 	dg.AddHandler(handleEvent)
 
@@ -65,7 +65,7 @@ func handleEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
 	msgHead = m.Content[:4]
 
 	if msgHead == "!db " {
-		if m.Content == msgHead {
+		if m.Content == msgHead || m.Content == msgHead[:3] {
 			err = errors.New("channel not provided")
 		} else {
 			targetChannel = strings.TrimSpace(m.Content[4:])
