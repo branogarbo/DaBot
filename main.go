@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
+	"github.com/bwmarrin/dgvoice"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -26,9 +28,10 @@ func main() {
 		return
 	}
 
-	dg.AddHandler(handleEvent)
+	dg.Identify.Intents = discordgo.IntentsGuildVoiceStates
 
-	dg.Identify.Intents = discordgo.IntentsAll
+	// dg.AddHandler(handleEvent)
+	dg.AddHandler(handleEvent)
 
 	err = dg.Open()
 	if err != nil {
@@ -44,45 +47,55 @@ func main() {
 	dg.Close()
 }
 
-func handleEvent(s *discordgo.Session, v *discordgo.VoiceConnection) {
-	// if v.UserID == s.State.User.ID {
-	// 	return
-	// }
+// func handleEvent(s *discordgo.Session, v *discordgo.VoiceConnection) {
+// 	// if v.UserID == s.State.User.ID {
+// 	// 	return
+// 	// }
 
-	fmt.Println(v.UserID)
+// 	fmt.Println(v.UserID)
 
-}
-
-// func handleEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
-// 	var (
-// 		msgHead    string
-// 		errMsg     string
-// 		err        error
-// 	)
-
-// 	if m.Author.ID == s.State.User.ID || len(m.Content) < 4{
-// 		return
-// 	}
-
-// 	// using janky command code for now
-
-// 	msgHead = m.Content[:4]
-
-// 	if msgHead == "!db " {
-// 		if m.Content == msgHead {
-// 			err = errors.New("mood not provided")
-// 		} else {
-// 			moodArg = strings.ToLower(strings.TrimSpace(m.Content[4:]))
-
-// 		}
-
-// 		if err != nil {
-// 			errMsg = fmt.Sprintf("```Error: %v```", err)
-
-// 			fmt.Println(errMsg)
-// 			moodString = errMsg
-// 		}
-
-// 		s.ChannelMessageSend(m.ChannelID, moodString)
-// 	}
 // }
+
+func handleEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
+	var (
+		msgHead string
+		errMsg  string
+		err     error
+	)
+
+	if m.Author.ID == s.State.User.ID || len(m.Content) < 4 {
+		return
+	}
+
+	msgHead = m.Content[:4]
+
+	if msgHead == "!db " {
+		// if m.Content == msgHead {
+		// 	err = errors.New("mood not provided")
+		// } else {
+		// 	moodArg = strings.ToLower(strings.TrimSpace(m.Content[4:]))
+
+		// }
+
+		// if err != nil {
+		// 	errMsg = fmt.Sprintf("```Error: %v```", err)
+
+		// 	fmt.Println(errMsg)
+		// 	moodString = errMsg
+		// }
+
+		// s.ChannelMessageSend(m.ChannelID, moodString)
+
+		targetChannel := strings.TrimSpace(m.Content[4:])
+
+		v, err := s.ChannelVoiceJoin(m.GuildID, targetChannel, false, false)
+		if err != nil {
+			fmt.Println("failed to join voice channel:", err)
+			return
+		}
+
+		dgvoice.PlayAudioFile(v, "./lesGooo.mp3", make(chan bool))
+
+		v.Close()
+	}
+}
