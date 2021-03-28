@@ -30,7 +30,7 @@ func main() {
 
 	dg.Identify.Intents = discordgo.IntentsAllWithoutPrivileged
 
-	dg.AddHandler(handleEvent)
+	dg.AddHandler(messageCreateEventHandler)
 
 	err = dg.Open()
 	if err != nil {
@@ -46,7 +46,7 @@ func main() {
 	dg.Close()
 }
 
-func handleEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
+func messageCreateEventHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	var (
 		msgHead         string
 		targetChannel   *discordgo.Channel
@@ -83,17 +83,17 @@ func handleEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
 			err = fmt.Errorf("channel with ID %v is not a voice channel", targetChannelID)
 		} else {
 			vc, err = s.ChannelVoiceJoin(m.GuildID, targetChannelID, false, false)
+		}
 
+		if err != nil {
+			errMsg = fmt.Sprintf("Error: %v", err)
+
+			fmt.Println(errMsg)
+			s.ChannelMessageSend(m.ChannelID, "```"+errMsg+"```")
+		} else {
 			dgvoice.PlayAudioFile(vc, "./lesGooo.mp3", make(chan bool))
 
 			vc.Disconnect()
 		}
-	}
-
-	if err != nil {
-		errMsg = fmt.Sprintf("Error: %v", err)
-
-		fmt.Println(errMsg)
-		s.ChannelMessageSend(m.ChannelID, "```"+errMsg+"```")
 	}
 }
